@@ -16,3 +16,16 @@
 
 (defun day1-1 ()
   (count-increases (load-ints "input.txt")))
+
+(defun sliding-window (list num-elems)
+  (loop for idx from 0 to (- (length list) num-elems)
+        collect (subseq list idx (+ idx num-elems))))
+
+(defun sliding-sum (list)
+  (map 'list #'(lambda (elem) (reduce #'+ elem)) list))
+
+(defun day1-2 ()
+  (count-increases (sliding-sum (sliding-window (load-ints "input.txt") 3))))
+
+(defun day1-1-alt ()
+  (count-increases (sliding-sum (sliding-window (load-ints "input.txt") 1))))
