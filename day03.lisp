@@ -38,7 +38,7 @@
     (* gamma-rate epsilon-rate)))
 
 (defun least-common (lines)
-  (mapcar #'(lambda (x) (logxor x 1)) (most-common lines)))
+  (invert-binary (most-common lines)))
 
 (defun filter-down (lines pos frequency-fun)
   (let* ((freq-at-pos (nth pos (funcall frequency-fun lines)))
