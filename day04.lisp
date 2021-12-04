@@ -46,7 +46,7 @@
 
 (defun draw (cards drawn remaining)
   (let ((winner? (find-winning cards drawn)))
-    (if winner? (values winner? drawn)
+    (if winner? (values winner? drawn remaining)
         (draw cards (cons (car remaining) drawn) (cdr remaining)))))
 
 (defun score-card (card drawn)
@@ -56,4 +56,17 @@
 (defun day4-1 ()
   (multiple-value-bind (numbers cards) (load-lines "input.txt" 'read-callouts 'read-bingo-cards)
     (multiple-value-bind (winner drawn) (draw cards '() numbers)
+      (score-card winner drawn))))
+
+(defun day4-2 ()
+  (multiple-value-bind (numbers cards) (load-lines "input.txt" 'read-callouts 'read-bingo-cards)
+    (let ((winner nil)
+          (drawn '())
+          (remaining numbers))
+      (loop repeat (length cards)
+            do (multiple-value-bind (w d r) (draw cards drawn remaining)
+                 (setq winner w)
+                 (setq drawn d)
+                 (setq remaining r)
+                 (setq cards (remove winner cards))))
       (score-card winner drawn))))
