@@ -25,6 +25,35 @@
     (values (funcall callouts-fun in)
             (funcall cards-fun in))))
 
+(defun card-column (n card)
+  (mapcar #'(lambda (row) (nth n row)) card))
 
+(defun card-columns (card)
+  (loop for idx from 0 to (- (length card) 1)
+        collect (card-column idx card)))
 
+(defun winning-line-p (line drawn)
+  (every #'(lambda (x) (member x drawn)) line))
 
+(defun winning-card-p (card drawn)
+  (flet ((winning-p (x) (winning-line-p x drawn)))
+    (or (some #'winning-p card)
+        (some #'winning-p (card-columns card)))))
+
+(defun find-winning (cards drawn)
+  (loop for card in cards
+        when (winning-card-p card drawn) return card))
+
+(defun draw (cards drawn remaining)
+  (let ((winner? (find-winning cards drawn)))
+    (if winner? (values winner? drawn)
+        (draw cards (cons (car remaining) drawn) (cdr remaining)))))
+
+(defun score-card (card drawn)
+  (let ((sums (mapcar #'(lambda (x) (reduce '+ (set-difference x drawn))) card)))
+    (* (reduce '+ sums) (car drawn))))
+
+(defun day4-1 ()
+  (multiple-value-bind (numbers cards) (load-lines "input.txt" 'read-callouts 'read-bingo-cards)
+    (multiple-value-bind (winner drawn) (draw cards '() numbers)
+      (score-card winner drawn))))
