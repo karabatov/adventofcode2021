@@ -1,4 +1,4 @@
-                                        ; Advent of Code 2021 day 4: https://adventofcode.com/2021/day/4
+                                        ; Advent of Code 2021 day 5: https://adventofcode.com/2021/day/5
 
 (defun number-filter (char)
   (if (digit-char-p char) char #\Space))
