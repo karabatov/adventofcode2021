@@ -55,3 +55,24 @@
                              (= y (y2 line)))
                   collect `(,x ,y))
             (list (list (x2 line) (y2 line))))))
+
+(defun common-points (line-pair)
+  (intersection
+   (line-points (car line-pair))
+   (line-points (cadr line-pair))
+   :test-not #'mismatch))
+
+(defun all-pairs (lines)
+  (loop for (x . y) on lines
+        nconc (loop for yy in y
+                    collect (list x yy))))
+
+(defun find-intersections (lines)
+  (mapcar 'common-points (all-pairs lines)))
+
+(defun day5-1 ()
+  (let* ((lines (load-lines "input.txt" 'read-vents))
+         (ortho (ortho-lines lines))
+         (clouds (find-intersections ortho))
+         (big-vents (remove-duplicates (reduce #'append clouds) :test-not #'mismatch)))
+    (length big-vents)))
