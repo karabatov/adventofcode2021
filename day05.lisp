@@ -76,3 +76,9 @@
          (clouds (find-intersections ortho))
          (big-vents (remove-duplicates (reduce #'append clouds) :test-not #'mismatch)))
     (length big-vents)))
+
+(defun day5-2 ()
+  (let* ((lines (load-lines "input.txt" 'read-vents))
+         (clouds (find-intersections lines))
+         (big-vents (remove-duplicates (reduce #'append clouds) :test-not #'mismatch)))
+    (length big-vents)))
