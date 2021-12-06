@@ -8,15 +8,12 @@
            (vec (make-array (length as-vec) :element-type 'fixnum :initial-contents as-vec :adjustable t :fill-pointer t)))
       vec)))
 
-(defun process-fish (timer)
-  (cond ((= timer 0) (values 6 8))
-        (t (values (- timer 1) nil))))
-
 (defun simulate (school)
   (loop for idx from 0 below (fill-pointer school)
-        do (multiple-value-bind (next new) (process-fish (aref school idx))
-             (setf (aref school idx) next)
-             (when new (vector-push-extend new school)))))
+        do (let ((val (aref school idx)))
+             (cond ((= val 0) (setf (aref school idx) 6)
+                    (vector-push-extend 8 school))
+                   (t (setf (aref school idx) (- val 1)))))))
 
 (defun evolve (school days)
   (loop repeat days
@@ -27,16 +24,22 @@
     (evolve school 80)
     (fill-pointer school)))
 
-(defun evolve-one (start days)
-  (let ((school (make-array 1 :element-type 'fixnum :initial-element start :adjustable t :fill-pointer t)))
-    (evolve school days)
-    (fill-pointer school)))
+(defun cached-evolve-rec (cache start days)
+  (defun evolve-internal (st d)
+    (let ((args `(,st ,d)))
+      (multiple-value-bind (found exists) (gethash args cache)
+        (if exists found
+            (setf (gethash args cache)
+                  (if (= d 0) 1
+                      (if (= st 0) (+ (evolve-internal 6 (- d 1)) (evolve-internal 8 (- d 1)))
+                          (evolve-internal (- st 1) (- d 1)))))))))
+  (evolve-internal start days))
 
 (defun day6-2 ()
-  (let* ((school (load-numbers "input2.txt"))
-        (days 18)
-        (reference (evolve-one 0 days))
-        (total 0))
+  (let* ((school (load-numbers "input.txt"))
+         (days 256)
+         (cache (make-hash-table :test #'equal))
+         (total 0))
     (loop for idx from 0 below (fill-pointer school)
-          do (setf total (+ total (aref school idx) reference)))
+          do (setf total (+ total (cached-evolve-rec cache (aref school idx) days))))
     total))
